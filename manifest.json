@@ -1,0 +1,10 @@
+{
+  "name": "Very Smart",
+  "description": "Makes you sound very smart",
+  "version": "0.2",
+  "permissions": ["contextMenus"],
+  "background": {
+    "scripts": ["smart.js"]
+  },
+  "manifest_version": 2
+}
