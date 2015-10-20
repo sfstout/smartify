@@ -2,9 +2,14 @@
   "name": "Very Smart",
   "description": "Makes you sound very smart",
   "version": "0.2",
-  "permissions": ["contextMenus"],
+  "permissions": [
+  	"contextMenus",
+  	"tabs",
+  	"activeTab"
+  ],
   "background": {
-    "scripts": ["smart.js"]
+    "scripts": ["smart.js"],
+    "persistent": false
   },
   "manifest_version": 2
 }

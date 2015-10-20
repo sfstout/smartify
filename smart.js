@@ -61,6 +61,18 @@ function translateParagraph(text) {
     return text.join('');
 }
 
+// Returns a random attributed author and date
+function getRandomAuthor() {
+    var titles = ['Duke ', 'The Duchess ', 'Queen ', 'King ', 'President ', 'Dr '];
+    var names = ['Wellington ', 'of Canterbury ', 'Obama ', 'Bush ', 'Elizabeth II ', 'Louis XVI ', 'Henry VIII '];
+    var years = ['1776 A.D.', '1984 A.D.', 'The Third Age', '996 A.D.', '2004 B.C.'];
+    var ret = '';
+    ret += titles[Math.floor(Math.random()*titles.length)];
+    ret += names[Math.floor(Math.random()*names.length)];
+    ret += years[Math.floor(Math.random()*years.length)];
+    return ret;
+}
+
 // top level, simple replaces the info
 // Input: info
 //        tab
@@ -70,13 +82,32 @@ function smartify(info, tab) {
 
     console.log(info);
     console.log(tab);
+
+    if (info.menuItemId === 'quote') {
+        returnText = '" ' + returnText + ' "\n   - ' + getRandomAuthor();
+    }
+
     console.log(returnText);
 
-  var range = tab.getSelection().getRangeAt(0);
-  range.deleteContents();
-  range.insertNode(tab.createTextNode(returnText));
+        chrome.tabs.executeScript({
+            code: "console.log('clicked')"
+      });
 
 }
 
-chrome.contextMenus.create({'title': 'Smartify', 'contexts': ['selection'], 'onclick': smartify});
+// Set up context menu at install time.
+chrome.runtime.onInstalled.addListener(function() { 
+
+    var smartifyParent = chrome.contextMenus.create(
+        {"title": "Smartify", 'contexts': ['selection'], "id": "1"}
+    );
+    chrome.contextMenus.create(
+        {"title": "Smartify", 'contexts': ['selection'], "parentId": "1", "id": "smartify"}
+    );
+    chrome.contextMenus.create( 
+        {"title": "Smartify with quote", 'contexts': ['selection'], "parentId": "1", "id": "quote"}
+    );
+
+    chrome.contextMenus.onClicked.addListener(smartify);
+});
 
