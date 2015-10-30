@@ -1,9 +1,7 @@
-// Dictionary
-
 var words = [
   [
-    "a","an","the","one"
-    /*"angstrom",
+    "a",
+    "angstrom",
     "angstrom unit",
     "vitamin A",
     "antiophthalmic factor",
@@ -48,7 +46,7 @@ var words = [
     "letter of the alphabet",
     "metric linear unit",
     "nucleotide",
-    "purine"*/
+    "purine"
   ],
   [
     "able",
@@ -13394,7 +13392,7 @@ var words = [
     "trouble"
   ],
   [
-    "hello",
+  	"hello",
     "hullo",
     "hi",
     "howdy",
@@ -31413,166 +31411,3 @@ var words = [
     "saxophonist"
   ]
 ];
-
-// Globals
-var globalChance = .1;
-var semiColonChance = globalChance;
-
-function findWordArray(word) {
-    var wordRE;
-    word = word.toLowerCase();
-    if (word.substring(word.length-2) === 'es') {
-        wordRE = new RegExp("\\b" + word.substring(0, word.length-1) + "e?s?\\b");
-    }
-    else if (word[word.length-1] === 's') {
-        wordRE = new RegExp("\\b" + word.substring(0, word.length-1) + "e?s?\\b");
-    } else if (word.substring(word.length-2) === 'ed') {
-        wordRE = new RegExp("\\b" + word.substring(0, word.length-1) + "e?d?\\b");
-    } else if (word.substring(word.length-3) === 'ing') {
-        wordRE = new RegExp("\\b" + word.substring(0, word.length-3) + "(ing)?\\b");
-    } else {
-        wordRE = new RegExp("\\b" + word + "e?[ds]?\\b", "i");
-    }
-    return findWordArrayHelper(wordRE, word, words, 0, words.length-1);
-}
-
-function findWordArrayHelper(wordRE, word, array, s, e) {
-    if (s > e) {
-        return null;
-    }
-    var mid = Math.floor((s+e)/2);
-    if (wordRE.test(array[mid][0])) {
-        return [mid, array[mid]];
-    }
-    if (word > array[mid][0]) {
-        return findWordArrayHelper(wordRE, word, array, mid+1, e);
-    }
-    if (word < array[mid][0]) {
-        return findWordArrayHelper(wordRE, word, array, s, mid-1);
-    }
-}
-
-// Takes a word and the 'smartified' word and returns the smartified word in the correct casing.
-// This only cares about the first letter of the word
-// Input: word : string, smartified: string
-// Output: string
-function properCase(word, smartified) {
-    if (word[0].toUpperCase() === word[0]) { // If first letter is capital
-        return (smartified[0].toUpperCase() + smartified.substring(1, smartified.length)); // Return with first letter capital
-    }
-    return smartified; // Otherwise return as normal
-}
-
-// Takes a word and returns a supposed synonym from a thesaurus
-// Input: word : string
-// Output: string
-function thesaurus(word) {
-    var ret = findWordArray(word.toLowerCase());
-    if (ret) {
-        ret = ret[1][Math.floor(Math.random()*ret[1].length)];
-        if (word.substring(word.length-2) === 'es' && ret.substring(ret.length-2) !== 'es') {
-            ret += 'es';
-        } else if (word[word.length-1] === 's' && ret[ret.length-1] !== 's') {
-            ret += 's';
-        } else if (word.substring(word.length-2) === 'ed' && ret.substring(ret.length-2) !== 'ed') {
-            ret += 'ed';
-        } else if (word.substring(word.length-3) === 'ing' && ret.substring(ret.length-3) !== 'ing') {
-            ret += 'ing';
-        }
-        return ret;
-    } else {
-        return word;
-    }
-}
-
-// Takes a single word and 'smartifies' it
-// Input: word: string
-// Output: string
-function translateWord(word) {
-    // Special Cases
-    if (/\bjoey\b/i.test(word)) { // We're dealing with Joey
-        return properCase(word, 'baby kangaroo');
-    } /*else if (/\bheart\b/i.test(word)) {
-        return properCase(word, 'full-sized aortic pump');
-    } else if (/\bhearts\b/i.test(word)) {
-        return properCase(word, 'full-sized aortic pumps');
-    }*/
-    return properCase(word, thesaurus(word));
-}
-
-// Takes a single token and 'smartifies' it
-// Input: token: string
-// Output: string
-function translateSingle(token) {
-    var i;
-    if (/\w/.test(token)) { // Dealing with a word
-        return translateWord(token);
-    } else if (i = /,/.exec(token)) { // sometimes replace ',' with ';'
-        if (Math.random() < semiColonChance) {
-            token = token.substring(0, i.index) + ';' +  token.substring(i.index + 1, token.length);
-        }
-    }
-    return token; // Otherwise leave unpermuted
-}
-
-// Takes a paragraph/grouping of words and 'smartifies' it
-// Input: text: string
-// Output: string
-function translateParagraph(text) {
-    text = text.split(/\b/);
-    for (var i = 0; i < text.length; i++) {
-        text[i] = translateSingle(text[i]);
-    }
-    return text.join('');
-}
-
-// Returns a random attributed author and date
-function getRandomAuthor() {
-    var titles = ['Duke ', 'The Duchess ', 'Queen ', 'King ', 'President ', 'Dr '];
-    var names = ['Wellington ', 'of Canterbury ', 'Obama ', 'Bush ', 'Elizabeth II ', 'Louis XVI ', 'Henry VIII '];
-    var years = ['1776 A.D.', '1984 A.D.', 'The Third Age', '996 A.D.', '2004 B.C.'];
-    var ret = '';
-    ret += titles[Math.floor(Math.random()*titles.length)];
-    ret += names[Math.floor(Math.random()*names.length)];
-    ret += years[Math.floor(Math.random()*years.length)];
-    return ret;
-}
-
-// top level, simple replaces the info
-// Input: info
-//        tab
-function smartify(info, tab) {
-
-    var returnText = translateParagraph(info.selectionText);
-
-    console.log(info);
-    console.log(tab);
-
-    if (info.menuItemId === 'quote') {
-        returnText = '" ' + returnText + ' "\n   - ' + getRandomAuthor();
-    }
-
-    console.log(returnText);
-
-        chrome.tabs.executeScript({
-            code: "console.log('clicked')"
-      });
-
-}
-
-// Set up context menu at install time.
-chrome.runtime.onInstalled.addListener(function() { 
-
-    var smartifyParent = chrome.contextMenus.create(
-        {"title": "Smartify", 'contexts': ['selection'], "id": "1"}
-    );
-    chrome.contextMenus.create(
-        {"title": "Smartify", 'contexts': ['selection'], "parentId": "1", "id": "smartify"}
-    );
-    chrome.contextMenus.create( 
-        {"title": "Smartify with quote", 'contexts': ['selection'], "parentId": "1", "id": "quote"}
-    );
-
-    chrome.contextMenus.onClicked.addListener(smartify);
-});
-

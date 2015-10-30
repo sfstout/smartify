@@ -1,5 +1,3 @@
-// Dictionary
-
 var words = [
   [
     "a","an","the","one"
@@ -31418,40 +31416,6 @@ var words = [
 var globalChance = .1;
 var semiColonChance = globalChance;
 
-function findWordArray(word) {
-    var wordRE;
-    word = word.toLowerCase();
-    if (word.substring(word.length-2) === 'es') {
-        wordRE = new RegExp("\\b" + word.substring(0, word.length-1) + "e?s?\\b");
-    }
-    else if (word[word.length-1] === 's') {
-        wordRE = new RegExp("\\b" + word.substring(0, word.length-1) + "e?s?\\b");
-    } else if (word.substring(word.length-2) === 'ed') {
-        wordRE = new RegExp("\\b" + word.substring(0, word.length-1) + "e?d?\\b");
-    } else if (word.substring(word.length-3) === 'ing') {
-        wordRE = new RegExp("\\b" + word.substring(0, word.length-3) + "(ing)?\\b");
-    } else {
-        wordRE = new RegExp("\\b" + word + "e?[ds]?\\b", "i");
-    }
-    return findWordArrayHelper(wordRE, word, words, 0, words.length-1);
-}
-
-function findWordArrayHelper(wordRE, word, array, s, e) {
-    if (s > e) {
-        return null;
-    }
-    var mid = Math.floor((s+e)/2);
-    if (wordRE.test(array[mid][0])) {
-        return [mid, array[mid]];
-    }
-    if (word > array[mid][0]) {
-        return findWordArrayHelper(wordRE, word, array, mid+1, e);
-    }
-    if (word < array[mid][0]) {
-        return findWordArrayHelper(wordRE, word, array, s, mid-1);
-    }
-}
-
 // Takes a word and the 'smartified' word and returns the smartified word in the correct casing.
 // This only cares about the first letter of the word
 // Input: word : string, smartified: string
@@ -31467,21 +31431,21 @@ function properCase(word, smartified) {
 // Input: word : string
 // Output: string
 function thesaurus(word) {
-    var ret = findWordArray(word.toLowerCase());
-    if (ret) {
-        ret = ret[1][Math.floor(Math.random()*ret[1].length)];
-        if (word.substring(word.length-2) === 'es' && ret.substring(ret.length-2) !== 'es') {
-            ret += 'es';
-        } else if (word[word.length-1] === 's' && ret[ret.length-1] !== 's') {
-            ret += 's';
-        } else if (word.substring(word.length-2) === 'ed' && ret.substring(ret.length-2) !== 'ed') {
-            ret += 'ed';
-        } else if (word.substring(word.length-3) === 'ing' && ret.substring(ret.length-3) !== 'ing') {
-            ret += 'ing';
-        }
-        return ret;
+	var ret = findWordArray(word.toLowerCase());
+	if (ret) {
+		ret = ret[1][Math.floor(Math.random()*ret[1].length)];
+		if (word.substring(word.length-2) === 'es' && ret.substring(ret.length-2) !== 'es') {
+			ret += 'es';
+		} else if (word[word.length-1] === 's' && ret[ret.length-1] !== 's') {
+			ret += 's';
+		} else if (word.substring(word.length-2) === 'ed' && ret.substring(ret.length-2) !== 'ed') {
+			ret += 'ed';
+		} else if (word.substring(word.length-3) === 'ing' && ret.substring(ret.length-3) !== 'ing') {
+			ret += 'ing';
+		}
+    	return ret;
     } else {
-        return word;
+    	return word;
     }
 }
 
@@ -31560,19 +31524,69 @@ function smartify(info, tab) {
 
 }
 
-// Set up context menu at install time.
-chrome.runtime.onInstalled.addListener(function() { 
+function testSmart(w) {
+	return translateParagraph(w);
+}
 
-    var smartifyParent = chrome.contextMenus.create(
-        {"title": "Smartify", 'contexts': ['selection'], "id": "1"}
-    );
-    chrome.contextMenus.create(
-        {"title": "Smartify", 'contexts': ['selection'], "parentId": "1", "id": "smartify"}
-    );
-    chrome.contextMenus.create( 
-        {"title": "Smartify with quote", 'contexts': ['selection'], "parentId": "1", "id": "quote"}
-    );
+function findWordArray(word) {
+	var wordRE;
+	word = word.toLowerCase();
+	if (word.substring(word.length-2) === 'es') {
+		wordRE = new RegExp("\\b" + word.substring(0, word.length-1) + "e?s?\\b");
+	}
+	else if (word[word.length-1] === 's') {
+	 	wordRE = new RegExp("\\b" + word.substring(0, word.length-1) + "e?s?\\b");
+	} else if (word.substring(word.length-2) === 'ed') {
+		wordRE = new RegExp("\\b" + word.substring(0, word.length-1) + "e?d?\\b");
+	} else if (word.substring(word.length-3) === 'ing') {
+		wordRE = new RegExp("\\b" + word.substring(0, word.length-3) + "(ing)?\\b");
+	} else {
+		wordRE = new RegExp("\\b" + word + "e?[ds]?\\b", "i");
+	}
+	return findWordArrayHelper(wordRE, word, words, 0, words.length-1);
+}
 
-    chrome.contextMenus.onClicked.addListener(smartify);
+function findWordArrayHelper(wordRE, word, array, s, e) {
+	if (s > e) {
+		return null;
+	}
+	var mid = Math.floor((s+e)/2);
+	if (wordRE.test(array[mid][0])) {
+		return [mid, array[mid]];
+	}
+	if (word > array[mid][0]) {
+		return findWordArrayHelper(wordRE, word, array, mid+1, e);
+	}
+	if (word < array[mid][0]) {
+		return findWordArrayHelper(wordRE, word, array, s, mid-1);
+	}
+}
+
+var apiKey = "9c967098ddae4a244cc57b527ce08e3c";
+
+var j = 0;
+
+/*
+$(document).ready(function () {
+	$('#ta').val("holle")
+	for (j = 0; j < words.length; j++) {
+		$.ajax({
+			url: "http://words.bighugelabs.com/api/2/9c967098ddae4a244cc57b527ce08e3c/" + words[j][0] + "/json",
+			dataType: 'json',
+			index: j,
+			success: function (data) {
+				var i;
+				var k;
+				for (k in data) {
+					if (data[k].syn) {
+						for (i = 0; i < data[k].syn.length; i++) {
+							words[this.index].push(data[k].syn[i]);
+						}
+					}
+				}
+				console.log(this.index);
+			}
+		});
+	}
 });
-
+*/
