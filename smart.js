@@ -31528,13 +31528,22 @@ function translateParagraph(text) {
 
 // Returns a random attributed author and date
 function getRandomAuthor() {
-    var titles = ['Duke ', 'The Duchess ', 'Queen ', 'King ', 'President ', 'Dr '];
-    var names = ['Wellington ', 'of Canterbury ', 'Obama ', 'Bush ', 'Elizabeth II ', 'Louis XVI ', 'Henry VIII '];
-    var years = ['1776 A.D.', '1984 A.D.', 'The Third Age', '996 A.D.', '2004 B.C.'];
+    var titles = ['Duke ', 'Sir ', 'Madame ', 'Earl ', 'The Duchess ', 'Queen ', 'King ', 'President ', 'Dr '];
+    var names = ['Wellington ', 'of Canterbury ', 'Grey ', 'Greyjoy ', 'Stark ', 'Lannister ', 'Baratheon ', 'Targaryen ', 'Obama ', 'Bush ', 'Elizabeth II ', 'Louis XVI ', 'Henry VIII '];
+    var years = [1,2, 'The Third Age'];
+    var date = new Date();
     var ret = '';
     ret += titles[Math.floor(Math.random()*titles.length)];
     ret += names[Math.floor(Math.random()*names.length)];
-    ret += years[Math.floor(Math.random()*years.length)];
+    years = years[Math.floor(Math.random()*years.length)];
+    if (years === 1) {
+        years = Math.floor(Math.random()*date.getFullYear() + 1);
+        years += ' A.D.';
+    } else if (years === 2) {
+        years = Math.floor(Math.random()*2500);
+        years += ' B.C.';
+    }
+    ret += years;
     return ret;
 }
 
