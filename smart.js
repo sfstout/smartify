@@ -1,3 +1,20 @@
+// Set up context menu at install time.
+chrome.runtime.onInstalled.addListener(function() { 
+
+    var smartifyParent = chrome.contextMenus.create(
+        {"title": "Smartify", 'contexts': ['selection'], "id": "1"}
+    );
+    chrome.contextMenus.create(
+        {"title": "Smartify", 'contexts': ['selection'], "parentId": "1", "id": "smartify"}
+    );
+    chrome.contextMenus.create( 
+        {"title": "Smartify with quote", 'contexts': ['selection'], "parentId": "1", "id": "quote"}
+    );
+
+});
+
+chrome.contextMenus.onClicked.addListener(smartify);
+
 // Dictionary
 
 var words = [
@@ -31551,11 +31568,8 @@ function getRandomAuthor() {
 // Input: info
 //        tab
 function smartify(info, tab) {
-
+    console.log(info.selectionText)
     var returnText = translateParagraph(info.selectionText);
-
-    console.log(info);
-    console.log(tab);
 
     if (info.menuItemId === 'quote') {
         returnText = '" ' + returnText + ' "\n   - ' + getRandomAuthor();
@@ -31563,25 +31577,15 @@ function smartify(info, tab) {
 
     console.log(returnText);
 
-        chrome.tabs.executeScript({
-            code: "console.log('clicked')"
+    returnText = returnText.replace(/\\/, '\\\\').replace(/"/g, '\\\"').replace(/'/g, '\\\'').replace(/\n/g, '\\n');
+
+    console.log(returnText)
+
+    var codeToExec = "function rst(e){var t,n;if(window.getSelection){t=window.getSelection();var o=document.activeElement;if('TEXTAREA'==o.nodeName||'INPUT'==o.nodeName&&'text'==o.type.toLowerCase()){var c=o.value,a=o.selectionStart,l=o.selectionEnd;o.value=c.slice(0,a)+e+c.slice(l)}else t.rangeCount?(n=t.getRangeAt(0),n.deleteContents(),n.insertNode(document.createTextNode(e))):t.deleteFromDocument()}else document.selection&&document.selection.createRange&&(n=document.selection.createRange(),n.text=e)};rst('" + returnText + "')";
+
+        chrome.tabs.executeScript(tab.id, {
+            code: codeToExec
       });
 
 }
-
-// Set up context menu at install time.
-chrome.runtime.onInstalled.addListener(function() { 
-
-    var smartifyParent = chrome.contextMenus.create(
-        {"title": "Smartify", 'contexts': ['selection'], "id": "1"}
-    );
-    chrome.contextMenus.create(
-        {"title": "Smartify", 'contexts': ['selection'], "parentId": "1", "id": "smartify"}
-    );
-    chrome.contextMenus.create( 
-        {"title": "Smartify with quote", 'contexts': ['selection'], "parentId": "1", "id": "quote"}
-    );
-
-    chrome.contextMenus.onClicked.addListener(smartify);
-});
 

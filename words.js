@@ -31576,6 +31576,31 @@ var apiKey = "9c967098ddae4a244cc57b527ce08e3c";
 
 var j = 0;
 
+function replaceSelectedText(replacementText) {
+    var sel;
+    var range;
+    if (window.getSelection) {
+        sel = window.getSelection();
+        var activeElement = document.activeElement;
+        if (activeElement.nodeName == "TEXTAREA" ||
+           (activeElement.nodeName == "INPUT" && activeElement.type.toLowerCase() == "text")) {
+               var val = activeElement.value, start = activeElement.selectionStart, end = activeElement.selectionEnd;
+               activeElement.value = val.slice(0, start) + replacementText + val.slice(end);
+        } else {
+          if (sel.rangeCount) {
+              range = sel.getRangeAt(0);
+              range.deleteContents();
+              range.insertNode(document.createTextNode(replacementText));
+          } else {
+              sel.deleteFromDocument();
+          }
+        }
+    } else if (document.selection && document.selection.createRange) {
+        range = document.selection.createRange();
+        range.text = replacementText;
+    }
+}
+
 /*
 $(document).ready(function () {
 	$('#ta').val("holle")
